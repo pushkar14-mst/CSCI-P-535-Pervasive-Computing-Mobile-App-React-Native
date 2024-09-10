@@ -2,7 +2,7 @@ import React from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { Appbar, Button, Text } from "react-native-paper";
 
-const HomePage: React.FC = () => {
+const HomeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -68,4 +68,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomePage;
+export default HomeScreen;

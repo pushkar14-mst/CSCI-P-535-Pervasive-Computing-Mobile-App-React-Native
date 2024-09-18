@@ -3,8 +3,10 @@ import { View, StyleSheet } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
 import DropDownPicker from "react-native-dropdown-picker";
 import { DatePickerInput } from "react-native-paper-dates";
+import { useSignUp } from "../auth/database";
+import LoadingModal from "../components/UI/LoadingModal";
 
-const SignUpScreen: React.FC = () => {
+const SignUpScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -12,20 +14,41 @@ const SignUpScreen: React.FC = () => {
   const [country, setCountry] = useState("");
   const [gender, setGender] = useState("");
   const [biography, setBiography] = useState("");
-
   const [countryOpen, setCountryOpen] = useState(false);
   const [genderOpen, setGenderOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSignUp = () => {
-    console.log({
-      email,
+  const onSignUp = async () => {
+    if (!email || !password || !name || !birthdate || !country) {
+      console.log("Please fill all the fields");
+    }
+
+    setIsLoading(true);
+
+    const res = await useSignUp(
+      email.toLowerCase(),
       password,
       name,
-      birthdate,
-      country,
+      birthdate.toString(),
+      country as string,
       gender,
-      biography,
-    });
+      biography
+    );
+    if (res) {
+      setIsLoading(false);
+      navigation.navigate("SignIn");
+    } else {
+      setEmail("");
+      setPassword("");
+      setName("");
+      setBirthdate(new Date());
+      setCountry("");
+      setGender("");
+      setBiography("");
+      setCountryOpen(false);
+      setGenderOpen(false);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -100,6 +123,7 @@ const SignUpScreen: React.FC = () => {
       <Button mode="contained" onPress={onSignUp} style={styles.button}>
         Sign Up
       </Button>
+      <LoadingModal visible={isLoading} message="Signing up..." />
     </View>
   );
 };

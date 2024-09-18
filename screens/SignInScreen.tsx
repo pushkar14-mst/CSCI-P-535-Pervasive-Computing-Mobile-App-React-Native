@@ -1,16 +1,29 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
+import { useSignIn } from "../auth/database";
+import LoadingModal from "../components/UI/LoadingModal";
 
-const SignInScreen: React.FC = () => {
+const SignInScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSignIn = () => {
-    console.log({
-      username,
-      password,
-    });
+  const onSignIn = async () => {
+    if (!username || !password) {
+      console.log("Please fill all the fields");
+    }
+    setIsLoading(true);
+    const res = await useSignIn(username, password);
+    if (res) {
+      setIsLoading(false);
+      navigation.navigate("Home");
+      console.log("User signed in:", res.user);
+    } else {
+      setUsername("");
+      setPassword("");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -34,6 +47,7 @@ const SignInScreen: React.FC = () => {
       <Button mode="contained" onPress={onSignIn} style={styles.button}>
         Sign In
       </Button>
+      <LoadingModal visible={isLoading} message="Signing you in...." />
     </View>
   );
 };

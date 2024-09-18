@@ -4,15 +4,6 @@ import { getFirestore } from "firebase/firestore";
 import { getReactNativePersistence, initializeAuth } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
-// const firebaseConfig = {
-//   apiKey: process.env.API_KEY,
-//   authDomain: process.env.AUTH_DOMAIN,
-//   projectId: process.env.PROJECT_ID,
-//   storageBucket: process.env.STORAGE_BUCKET,
-//   messagingSenderId: process.env.MESSAGING_SENDER_ID,
-//   appId: process.env.APP_ID,
-//   measurementId: process.env.MEASUREMENT_ID,
-// };
 const firebaseConfig = {
   apiKey: "AIzaSyBJyV_U7EhCe0StrJSxXOFXD6WWR7p2ttI",
   authDomain: "pervasive-lab.firebaseapp.com",

@@ -1,10 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { Appbar, Button, Text } from "react-native-paper";
 import { auth } from "../auth/config";
+import { getStoredUser } from "../auth/database";
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const [userName, setUserName] = React.useState<string | null>(null);
   const currentUser = auth.currentUser;
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (currentUser) {
+        const storedUser = await getStoredUser();
+        setUserName(storedUser?.displayName || currentUser.displayName);
+      }
+    };
+
+    fetchUserName();
+  }, [currentUser]);
 
   const signOut = async () => {
     try {
@@ -27,7 +39,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               style={styles.image}
             />
             <Text variant="headlineLarge" style={styles.title}>
-              Welcome to My App
+              Welcome to My App, {userName}
             </Text>
             <Text variant="bodyMedium" style={styles.subtitle}>
               {currentUser.email}

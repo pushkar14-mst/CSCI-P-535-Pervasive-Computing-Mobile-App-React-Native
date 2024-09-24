@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
-import { useSignIn } from "../auth/database";
+import { getStoredUser, useSignIn } from "../auth/database";
 import LoadingModal from "../components/UI/LoadingModal";
 
 const SignInScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
@@ -9,6 +9,15 @@ const SignInScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    const fetchStoredEmail = async () => {
+      const storedUser = await getStoredUser();
+      if (storedUser && storedUser.email) {
+        setUsername(storedUser.email);
+      }
+    };
+    fetchStoredEmail();
+  }, []);
   const onSignIn = async () => {
     if (!username || !password) {
       console.log("Please fill all the fields");

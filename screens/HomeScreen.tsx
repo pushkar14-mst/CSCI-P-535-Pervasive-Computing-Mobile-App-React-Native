@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   },
   loggedInText: {
     position: "absolute",
-    top: 50, // Adjust position as needed
+    top: 50,
     fontSize: 22,
     color: "#fff",
   },

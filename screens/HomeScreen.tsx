@@ -1,12 +1,17 @@
-import React, { useEffect } from "react";
-import { View, StyleSheet, Image } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { View, StyleSheet, Image, Animated, PanResponder } from "react-native";
 import { Appbar, Button, Text } from "react-native-paper";
 import { auth } from "../auth/config";
 import { getStoredUser } from "../auth/database";
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const [userName, setUserName] = React.useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const currentUser = auth.currentUser;
+
+  const scaleValue = useRef(new Animated.Value(0)).current;
+  const pan = useRef(new Animated.ValueXY()).current;
+  const fadeInOpacity = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     const fetchUserName = async () => {
       if (currentUser) {
@@ -16,7 +21,32 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     };
 
     fetchUserName();
+
+    Animated.spring(scaleValue, {
+      toValue: 1,
+      friction: 4,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(fadeInOpacity, {
+      toValue: 1,
+      duration: 6000, // 2 seconds fade-in
+      useNativeDriver: true,
+    }).start();
   }, [currentUser]);
+
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
+      useNativeDriver: false,
+    }),
+    onPanResponderRelease: () => {
+      Animated.spring(pan, {
+        toValue: { x: 0, y: 0 },
+        useNativeDriver: true,
+      }).start();
+    },
+  });
 
   const signOut = async () => {
     try {
@@ -27,27 +57,60 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       console.error("Error signing out:", error.message);
     }
   };
+
   return (
     <View style={styles.container}>
       {currentUser ? (
         <>
           <View style={styles.content}>
+            <Animated.Text
+              style={[
+                styles.loggedInText,
+                {
+                  opacity: fadeInOpacity,
+                  transform: [{ scale: scaleValue }],
+                },
+              ]}
+            >
+              Logged in
+            </Animated.Text>
+
             <Image
               source={{
                 uri: "https://lumiere-a.akamaihd.net/v1/images/bb-8-main_72775463.jpeg?region=320%2C51%2C567%2C425",
               }}
               style={styles.image}
             />
-            <Text variant="headlineLarge" style={styles.title}>
+            <Animated.Text
+              style={[
+                styles.title,
+                {
+                  transform: [{ scale: scaleValue }],
+                },
+              ]}
+            >
               Welcome to My App, {userName}
-            </Text>
+            </Animated.Text>
             <Text variant="bodyMedium" style={styles.subtitle}>
               {currentUser.email}
             </Text>
             <Button mode="contained" onPress={signOut} style={styles.button}>
               Sign Out
             </Button>
+
+            <Animated.View
+              {...panResponder.panHandlers}
+              style={[
+                {
+                  transform: [{ translateX: pan.x }, { translateY: pan.y }],
+                },
+                styles.gestureObject,
+              ]}
+            >
+              <Text style={styles.gestureText}>Drag me!</Text>
+            </Animated.View>
           </View>
+
           <Appbar style={styles.navbar}>
             <Appbar.Action icon="account" onPress={() => {}} />
             <Appbar.Action icon="magnify" onPress={() => {}} />
@@ -88,6 +151,7 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 10,
     color: "#ffffff",
+    fontSize: 24,
   },
   subtitle: {
     color: "#ffffff",
@@ -97,6 +161,31 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
     paddingHorizontal: 30,
+  },
+  gestureObject: {
+    width: 150,
+    height: 150,
+    backgroundColor: "#37B7C3",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 75,
+    marginTop: 20,
+  },
+  gestureText: {
+    color: "#fff",
+  },
+  loggedInTextContainer: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: "#37B7C3",
+    position: "absolute",
+    width: "100%",
+  },
+  loggedInText: {
+    position: "absolute",
+    top: 50, // Adjust position as needed
+    fontSize: 22,
+    color: "#fff",
   },
 });
 

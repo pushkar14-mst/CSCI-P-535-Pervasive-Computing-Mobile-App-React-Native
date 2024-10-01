@@ -40,11 +40,14 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
       useNativeDriver: false,
     }),
+    // onPanResponderRelease: () => {
+    //   Animated.spring(pan, {
+    //     toValue: { x: 0, y: 0 },
+    //     useNativeDriver: true,
+    //   }).start();
+    // },
     onPanResponderRelease: () => {
-      Animated.spring(pan, {
-        toValue: { x: 0, y: 0 },
-        useNativeDriver: true,
-      }).start();
+      pan.flattenOffset();
     },
   });
 

@@ -12,13 +12,19 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show you where you are.",
+      "UIBackgroundModes": [
+        "location"
+      ],
+      "bundleIdentifier": "com.pushkar14.firstapplication"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.pushkar14.firstapplication"
     },
     "web": {
       "favicon": "./assets/favicon.png"

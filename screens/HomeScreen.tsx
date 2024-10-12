@@ -1,17 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, StyleSheet, Image, Animated, PanResponder } from "react-native";
-import { Appbar, Button, Text } from "react-native-paper";
+import { Appbar, Button, Drawer, IconButton, Text } from "react-native-paper";
 import { auth } from "../auth/config";
 import { getStoredUser } from "../auth/database";
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [userName, setUserName] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const currentUser = auth.currentUser;
 
   const scaleValue = useRef(new Animated.Value(0)).current;
   const pan = useRef(new Animated.ValueXY()).current;
   const fadeInOpacity = useRef(new Animated.Value(0)).current;
-
+  const drawerAnim = useRef(new Animated.Value(-300)).current;
   useEffect(() => {
     const fetchUserName = async () => {
       if (currentUser) {
@@ -60,7 +62,23 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       console.error("Error signing out:", error.message);
     }
   };
-
+  const handleNavigation = (screen: string) => {
+    setDrawerOpen(false); // Close drawer
+    Animated.timing(drawerAnim, {
+      toValue: -300, // Move drawer out of view
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+    navigation.navigate(screen);
+  };
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+    Animated.timing(drawerAnim, {
+      toValue: drawerOpen ? -300 : 0, // Slide in/out
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
   return (
     <View style={styles.container}>
       {currentUser ? (
@@ -84,6 +102,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               }}
               style={styles.image}
             />
+
             <Animated.Text
               style={[
                 styles.title,
@@ -114,11 +133,44 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             </Animated.View>
           </View>
 
+          <Animated.View
+            style={[styles.drawer, { transform: [{ translateX: drawerAnim }] }]}
+          >
+            <View style={styles.drawerContent}>
+              <Text style={styles.drawerTitle}>Menu</Text>
+              <Button onPress={() => handleNavigation("Home")}>Home</Button>
+              <Button onPress={() => handleNavigation("ImagePicker")}>
+                Image Picker
+              </Button>
+              <Button onPress={() => handleNavigation("Location")}>
+                Location
+              </Button>
+              <Button onPress={signOut}>Sign Out</Button>
+              <IconButton
+                icon="close"
+                onPress={toggleDrawer}
+                style={styles.closeButton}
+              />
+            </View>
+          </Animated.View>
+
           <Appbar style={styles.navbar}>
-            <Appbar.Action icon="account" onPress={() => {}} />
-            <Appbar.Action icon="magnify" onPress={() => {}} />
-            <Appbar.Action icon="bell" onPress={() => {}} />
-            <Appbar.Action icon="cog" onPress={() => {}} />
+            <Appbar.Action
+              icon="home"
+              onPress={() => navigation.navigate("Home")}
+            />
+            <Appbar.Action
+              icon="image"
+              onPress={() => navigation.navigate("ImagePicker")}
+            />
+            <Appbar.Action
+              icon="map-marker"
+              onPress={() => navigation.navigate("Location")}
+            />
+            <Appbar.Action
+              icon="menu"
+              onPress={toggleDrawer} // Toggle the drawer
+            />
           </Appbar>
         </>
       ) : (
@@ -133,6 +185,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#071952",
     color: "#ffffff",
+  },
+  drawer: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    height: "100%",
+    width: 300,
+    backgroundColor: "#37B7C3",
+    padding: 20,
+    zIndex: 1,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    marginBottom: 10,
+  },
+  drawerContent: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  drawerTitle: {
+    fontSize: 24,
+    color: "#fff",
+    marginBottom: 20,
   },
   navbar: {
     backgroundColor: "#37B7C3",
